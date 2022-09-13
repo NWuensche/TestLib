@@ -1,5 +1,6 @@
 package de.nwuensche.mylibrary
 
+import android.content.Intent
 import android.net.Uri
 import net.openid.appauth.*
 import kotlin.coroutines.resume
@@ -15,13 +16,13 @@ suspend fun fetchFromIssuer(openIdConnectIssuerUri: Uri): AuthorizationServiceCo
         } else if (ex != null) {
             cont.resumeWithException(ex)
         } else {
-            cont.resumeWithException(IllegalStateException("serviceConfiguration AND exception is null")) //fetchFromIssuer-Dok says exactly one is non-null
+            cont.resumeWithException(IllegalStateException("serviceConfiguration AND exception are null")) //fetchFromIssuer-Dok says exactly one is non-null
         }
     }
 }
 
 suspend fun fetchFromUrl(openIdConnectIssuerUri: Uri): AuthorizationServiceConfiguration = suspendCoroutine { cont ->
-    AuthorizationServiceConfiguration.fetchFromIssuer(
+    AuthorizationServiceConfiguration.fetchFromUrl(
         openIdConnectIssuerUri
     ) { serviceConfiguration, ex ->
         if (serviceConfiguration != null) {
@@ -29,7 +30,7 @@ suspend fun fetchFromUrl(openIdConnectIssuerUri: Uri): AuthorizationServiceConfi
         } else if (ex != null) {
             cont.resumeWithException(ex)
         } else {
-            cont.resumeWithException(IllegalStateException("serviceConfiguration AND exception is null")) //fetchFromIssuer-Dok says exactly one is non-null
+            cont.resumeWithException(IllegalStateException("serviceConfiguration AND exception are null")) //fetchFromIssuer-Dok says exactly one is non-null
         }
     }
 }
@@ -43,7 +44,7 @@ suspend fun AuthorizationService.performTokenRequest(tokenRequest: TokenRequest)
         } else if (ex != null) {
             cont.resumeWithException(ex)
         } else {
-            cont.resumeWithException(IllegalStateException("response AND exception is null")) //performTokenRequest-Dok says exactly one is non-null
+            cont.resumeWithException(IllegalStateException("response AND exception are null")) //performTokenRequest-Dok says exactly one is non-null
         }
     }
 }
@@ -58,7 +59,7 @@ suspend fun AuthorizationService.performTokenRequest(tokenRequest: TokenRequest,
         } else if (ex != null) {
             cont.resumeWithException(ex)
         } else {
-            cont.resumeWithException(IllegalStateException("response AND exception is null")) //performTokenRequest-Dok says exactly one is non-null
+            cont.resumeWithException(IllegalStateException("response AND exception are null")) //performTokenRequest-Dok says exactly one is non-null
         }
     }
 }
@@ -74,7 +75,7 @@ suspend fun AuthState.performActionWithFreshTokens(service: AuthorizationService
         } else if (ex != null) {
             cont.resumeWithException(ex)
         } else {
-            cont.resumeWithException(IllegalStateException("tokens AND exception is null")) //performActionWithFreshTokens-Dok says exactly one is non-null
+            cont.resumeWithException(IllegalStateException("tokens AND exception are null")) //performActionWithFreshTokens-Dok says exactly one is non-null
         }
     }
 }
@@ -89,7 +90,25 @@ suspend fun AuthState.performActionWithFreshTokens(service: AuthorizationService
         } else if (ex != null) {
             cont.resumeWithException(ex)
         } else {
-            cont.resumeWithException(IllegalStateException("tokens AND exception is null")) //performActionWithFreshTokens-Dok says exactly one is non-null
+            cont.resumeWithException(IllegalStateException("tokens AND exception are null")) //performActionWithFreshTokens-Dok says exactly one is non-null
         }
     }
+}
+
+/**
+ * either parses [AuthorizationResponse] or throws [AuthorizationException]
+ */
+fun Intent.getAuthorizationResponseOrThrow(): AuthorizationResponse {
+    val response = AuthorizationResponse.fromIntent(this)
+    val ex = AuthorizationException.fromIntent(this)
+
+    if (ex != null) {
+        throw ex
+    }
+
+    if (response == null) {
+        throw IllegalStateException("response AND exception are null")
+    }
+
+    return response
 }
