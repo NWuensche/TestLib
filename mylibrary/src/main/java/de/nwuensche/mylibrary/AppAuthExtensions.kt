@@ -112,3 +112,19 @@ fun Intent.getAuthorizationResponseOrThrow(): AuthorizationResponse {
 
     return response
 }
+
+fun Intent.getEndSessionResponseOrThrow(): EndSessionResponse {
+    val response = EndSessionResponse.fromIntent(this)
+    val ex = AuthorizationException.fromIntent(this)
+
+    if (ex != null) {
+        throw ex
+    }
+
+    if (response == null) {
+        throw IllegalStateException("response AND exception are null")
+    }
+
+    return response
+}
+
